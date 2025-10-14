@@ -164,6 +164,126 @@ bhaiyoo mere bare me jaan lo bacche rahoge Aaj Ki Link
     </section>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Main Page</title>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Courier New', monospace;
+    color: #00ff9d;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: black;
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+
+  canvas#matrix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #010203 0%, #000000 80%);
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+    width: 90%;
+    max-width: 700px;
+    padding: 10vw 5vw;
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px #00ffcc, 0 0 25px #00ffaa;
+    animation: flicker 3s infinite alternate;
+    margin-bottom: 20px;
+    word-wrap: break-word;
+  }
+
+  p {
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    color: #aaffd5;
+    margin: 0 auto;
+  }
+
+  @keyframes flicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+      text-shadow: 0 0 10px #00ffcc, 0 0 25px #00ffaa;
+      opacity: 1;
+    }
+    20%, 24%, 55% {
+      text-shadow: none;
+      opacity: 0.3;
+    }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<main>
+  <h1>Welcome to the Main Page</h1>
+  <p>This text now resizes smoothly across Android and other devices. No clipping, no tiny font — just clean scaling with the Matrix background flowing behind it.</p>
+</main>
+
+<script>
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+
+  function resizeCanvas() {
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+  }
+  resizeCanvas();
+
+  const letters = "01#@$%&*><{}[]";
+  const fontSize = 14;
+  let columns = Math.floor(canvas.width / fontSize);
+  const drops = Array(columns).fill(1);
+
+  function drawMatrix() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#00ff9d";
+    ctx.font = fontSize + "px Courier New";
+
+    for (let i = 0; i < drops.length; i++) {
+      const text = letters.charAt(Math.floor(Math.random() * letters.length));
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975)
+        drops[i] = 0;
+      drops[i]++;
+    }
+  }
+
+  setInterval(drawMatrix, 35);
+  window.addEventListener('resize', resizeCanvas);
+</script>
+
+</body>
+</html>
+
 
 
 

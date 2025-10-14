@@ -121,176 +121,67 @@ bhaiyoo mere bare me jaan lo bacche rahoge Aaj Ki Link
     </section>
 </body>
 </html>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Clean Linker — strip tracking params & generate privacy-friendly redirects</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;line-height:1.45;color:#111;background:linear-gradient(180deg,#f8fafc,#fff);padding:28px;}
-    .card{max-width:880px;margin:16px auto;padding:22px;border-radius:12px;box-shadow:0 6px 24px rgba(20,20,30,.06);background:#fff}
-    h1{margin:0 0 8px;font-size:20px}
-    p.lead{margin:6px 0 18px;color:#444}
-    label{display:block;margin:10px 0 6px;font-weight:600}
-    input[type=url], input[type=text]{width:100%;padding:10px;border:1px solid #e6e9ef;border-radius:8px;font-size:14px}
-    .row{display:flex;gap:8px;margin-top:10px}
-    button{padding:10px 14px;border-radius:8px;border:none;background:#0b74ff;color:#fff;font-weight:600;cursor:pointer}
-    .muted{color:#666;font-size:13px}
-    pre{background:#0f1724;color:#dbeafe;padding:12px;border-radius:8px;overflow:auto}
-    .out{margin-top:12px}
-    .flex-between{display:flex;justify-content:space-between;align-items:center}
-    .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:#eef2ff;border:1px solid #e0e7ff;color:#1e3a8a;font-weight:600;font-size:13px}
-    .small{font-size:13px;color:#444}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teleport Button</title>
+<style>
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: radial-gradient(circle at center, #ffe4f1, #fff0f6);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .teleport-btn {
+    position: relative;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 40px;
+    background: linear-gradient(135deg, #ff1d75, #ff7ca8);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+  }
+
+  .teleport-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .teleport-btn:hover::before {
+    opacity: 1;
+  }
+
+  .teleport-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 29, 117, 0.5);
+  }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>Clean Linker</h1>
-    <p class="lead">Strip tracking params, produce a copyable clean URL and a small redirect file you can host. Tidy, private, and practical.</p>
 
-    <label for="url">Enter URL</label>
-    <input id="url" type="url" placeholder="https://example.com/page?utm_source=mail&utm_medium=email&ref=me" />
+<button class="teleport-btn" onclick="teleport()">🚀 Teleport to Instagram</button>
 
-    <div style="margin-top:12px">
-      <label><input id="stripUTM" type="checkbox" checked /> Strip common marketing/tracking params (utm_*, gclid, fbclid, dclid, msclkid)</label>
-      <label><input id="stripAll" type="checkbox" /> Strip ALL query parameters (use only if page doesn't need them)</label>
-    </div>
+<script>
+  function teleport() {
+    // Replace this with your Instagram profile link
+    window.location.href = "https://www.instagram.com/admin_club_leo?igsh=MjRnc3o5emF6b2V1";
+  }
+</script>
 
-    <div class="row" style="margin-top:14px">
-      <button id="cleanBtn">Clean URL</button>
-      <button id="copyBtn" disabled>Copy cleaned URL</button>
-      <button id="downloadRedirect" disabled>Download redirect HTML</button>
-    </div>
-
-    <div class="out">
-      <div class="flex-between">
-        <div>
-          <div class="small muted">Cleaned URL</div>
-          <input id="cleaned" type="text" readonly style="margin-top:6px" />
-        </div>
-        <div style="text-align:right">
-          <div class="chip">Tip</div>
-          <div class="muted small" style="margin-top:6px">Use the HTML snippet below when embedding links on pages.</div>
-        </div>
-      </div>
-
-      <label style="margin-top:12px">HTML snippet to paste into your site (opens in new tab, no referrer)</label>
-      <pre id="snippet" style="min-height:72px"><!-- cleaned anchor will appear here --></pre>
-
-      <label style="margin-top:10px">Notes</label>
-      <div class="muted small">
-        <ul>
-          <li>Adding <code>rel="noreferrer noopener"</code> prevents browsers from sending the referring URL in many cases and avoids opener-based attacks.</li>
-          <li>The downloadable redirect file includes <code>&lt;meta name="referrer" content="no-referrer"&gt;</code> to reduce referrer leakage when someone clicks that hosted page.</li>
-          <li>Server logs (your host or the target host) may still record requests. This tool helps with client-side privacy and removing tracking parameters only.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // known tracker param patterns
-    const TRACKERS = ['utm_', 'gclid', 'fbclid', 'dclid', 'msclkid', 'mc_cid', 'mc_eid', 'yclid'];
-
-    const el = id => document.getElementById(id);
-    el('cleanBtn').addEventListener('click', () => {
-      const raw = el('url').value.trim();
-      if (!raw) { alert('Paste a URL first.'); return; }
-      try {
-        const u = new URL(raw);
-        const params = new URLSearchParams(u.search);
-        if (el('stripAll').checked) {
-          // remove all
-          u.search = '';
-        } else {
-          if (el('stripUTM').checked) {
-            // remove known patterns
-            for (const key of Array.from(params.keys())) {
-              for (const t of TRACKERS) {
-                if (key.toLowerCase().startsWith(t)) { params.delete(key); break; }
-              }
-            }
-            u.search = params.toString() ? '?' + params.toString() : '';
-          } else {
-            // keep as-is
-          }
-        }
-        // Also remove hash if it's clearly used for tracking (optional — we keep hashes by default)
-        const cleaned = u.toString();
-        el('cleaned').value = cleaned;
-        el('copyBtn').disabled = false;
-        el('downloadRedirect').disabled = false;
-
-        // produce HTML snippet
-        const snippet = <a href="${escapeHtml(cleaned)}" target="_blank" rel="noreferrer noopener">Open link</a>;
-        el('snippet').textContent = snippet;
-
-      } catch (e) {
-        alert('That does not look like a valid URL. Make sure it starts with https:// or http://');
-      }
-    });
-
-    el('copyBtn').addEventListener('click', async () => {
-      const text = el('cleaned').value;
-      if (!text) return;
-      try {
-        await navigator.clipboard.writeText(text);
-        el('copyBtn').textContent = 'Copied ✓';
-        setTimeout(()=> el('copyBtn').textContent = 'Copy cleaned URL', 1400);
-      } catch (e) {
-        // fallback
-        const ta = document.createElement('textarea');
-        ta.value = text; document.body.appendChild(ta);
-        ta.select(); document.execCommand('copy'); ta.remove();
-        el('copyBtn').textContent = 'Copied ✓';
-        setTimeout(()=> el('copyBtn').textContent = 'Copy cleaned URL', 1400);
-      }
-    });
-
-    el('downloadRedirect').addEventListener('click', () => {
-      const target = el('cleaned').value;
-      if (!target) return alert('Generate a cleaned URL first.');
-      // Create a small redirect page with no-referrer meta (host this on your domain)
-      const redirectHtml = `<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="referrer" content="no-referrer">
-  <meta http-equiv="refresh" content="0;url=${escapeAttr(target)}">
-  <title>Redirecting…</title>
-  <style>body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;background:#fff;color:#111;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}</style>
-</head>
-<body>
-  <div>
-    <p>Redirecting… If your browser does not automatically redirect, <a href="${escapeAttr(target)}" rel="noreferrer noopener">click here</a>.</p>
-    <script>
-      // Fallback JS redirect (keeps no-referrer meta) — replace location without creating a history entry.
-      try { location.replace(${JSON.stringify(target)}); } catch(e) {}
-    </script>
-  </div>
-</body>
-</html>`;
-
-      const blob = new Blob([redirectHtml], {type:'text/html'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      // create a friendly filename
-      const name = 'redirect-' + (new Date()).toISOString().replace(/[:.]/g,'-') + '.html';
-      a.download = name;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
-    });
-
-    function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    function escapeAttr(s){ return s.replace(/"/g,'&quot;').replace(/'/g,"&#39;"); }
-  </script>
 </body>
 </html>
-
-
-
-
